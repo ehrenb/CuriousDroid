@@ -1,4 +1,4 @@
-from subprocess import CalledProcessError, check_output, call, check_call
+from subprocess import CalledProcessError, check_output, check_call
 from settings import adb_executable as adb
 """
 A multipurpose module for using ADB
@@ -32,14 +32,13 @@ def get_list_of_connected_devices():
         print(e.returncode)
     return result
 
-def pull_file(device_id, src_path, dst_dir=''):
+def pull_file(device_id, src_dir, dst_dir):
     """adb pull a file from the device given its src
        and optionally, specify a desination path
        if no dst specified, it will go to the cwd"""
-    adb_pull_cmd = [adb, '-s', device_id, 'pull', src_path]
+    adb_pull_cmd = [adb, '-s', device_id, 'pull', src_dir]
     #append destination path to cmd if it was set 
     if dst_dir:
-        print 'dst_dir detected'
         adb_pull_cmd.append(dst_dir)
     try:
         check_call(adb_pull_cmd)

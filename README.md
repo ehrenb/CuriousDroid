@@ -6,5 +6,10 @@ Useful scripts and tools that extract data from Android devices for later static
 *  extract\_all\_apk.py
   *  extract all APK files that are installed on the device (even system apps) into the current working directory (or specifcy a destination dir)
     *  usage (output into cwd): python extract\_all\_apk.py 
-    *  usage (output into specified dir): python extract\_all\_apk.py output_dir/
+    *  usage (output into specified dir): python extract\_all\_apk.py <dst_dir>
+
+*  decompile\_all\_apk.py
+  *  run 'apktool d' on all files in a directory
+  *  usage (output into cwd): python decompile\_all\_apk.py <src_dir>
+  *  usage (output into specified dir): python decompile\_all\_apk.py <src_dir> <dst_dir>
 

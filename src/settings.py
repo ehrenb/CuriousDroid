@@ -1,6 +1,6 @@
 
-###monkey options:
 adb_executable = '/home/branden/android-sdks/platform-tools/adb'  #path to adb executable
+apktool_executable = 'apktool'
 # {key: [cmd,value]}
 #set value to None if you don't want to use that option
 #to enable an option, give it a value as a string

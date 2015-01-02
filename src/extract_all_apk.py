@@ -7,8 +7,14 @@ from subprocess import CalledProcessError, check_output, call, check_call
 Extract all APKs from a device 
 """
 
+"""
+usage
+extract_all_apk dst_dir
+dst_dir defaults to cwd if not set
+"""
 
-def extract_all_apk(device_id, package_list, dst_dir=''):
+
+def extract_all_apk(device_id, package_list, dst_dir):
     """
     Extract all APK files associated with the package_list
     Create a report 
@@ -46,20 +52,23 @@ def extract_all_apk(device_id, package_list, dst_dir=''):
     f.close()
 
 def parse_apk_from_path(path):
+    """
+    return last part of a path (after last '/')
+    """
     apk_file = path[path.rfind('/')+1:]
     return apk_file
 
 def main():
-
+    adb.start_server()#start adb server
     dst_dir = ''
+    #destination defaults to cwd if no dst_dir was specified
     try:
         dst_dir = sys.argv[1]
-        if os.path.isdir(dst_dir):
-            print 'Dumping results to {0}'.format(dst_dir)
-        else:
-            print 'Error, directory "{0}"" does not exist'.format(dst_dir)
+        if not os.path.isdir(dst_dir):
+            print 'Error, directory "{0}" does not exist'.format(dst_dir)
+            sys.exit()
     except IndexError as e:
-        print 'No destination dir specified, dumping to current working directory..'
+        print 'No destination dir specified, dumping to "{0}"'.format(os.getcwd())
         pass
 
     devices = adb.get_list_of_connected_devices()
