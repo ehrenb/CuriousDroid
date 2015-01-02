@@ -13,3 +13,6 @@ Useful scripts and tools that extract data from Android devices for later static
   *  usage (output into cwd): python decompile\_all\_apk.py <src_dir>
   *  usage (output into specified dir): python decompile\_all\_apk.py <src_dir> <dst_dir>
 
+*  adb.py
+  *  a module for interfacing with a device using ADB (Android Debug Bridge). functionality will be added as needed
+  *  remember to set the adb path correctly in settings.py  
