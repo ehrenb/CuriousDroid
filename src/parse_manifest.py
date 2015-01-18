@@ -1,5 +1,8 @@
+from datetime import datetime
+
 import os
 import re
+import sys
 
 def export_flag_is_true(manifest_file):
     """
@@ -8,7 +11,7 @@ def export_flag_is_true(manifest_file):
     Return false if flag is set to false
     """
     f = open(manifest_file,'r')
-    if 'android:exported="true"' in f:
+    if 'android:exported="true"' in f.read():
         return True
     return False
 
@@ -20,12 +23,12 @@ def target_sdk_is_vulnerable(manifest_file):
     Return false if greater than 17
     """
     f = open(manifest_file,'r')
-    if 'android:targetSdkVersion' in f:
+    if 'android:targetSdkVersion' in f.read():
         match = re.search('targetSdkVersion="(.*)"', f.read())
         sdk_version = int(match.group(1))
         if sdk_version <= 17:
             return True
-    elif 'android:maxSdkVersion' in f:
+    elif 'android:maxSdkVersion' in f.read():
         match = re.search('maxSdkVersion="(.*)"', f.read())
         sdk_version = int(match.group(1))
         if sdk_version <= 17:
@@ -39,13 +42,10 @@ def parse_all_manifest(src_dir):
     and get each dirs androidmanifest.xml file and parse it
     """
     report_list = []
-    for src_dir in os.listdir(src_dir):
+    for decompile_dir in os.listdir(src_dir):
         #only try to look into directories
-        if os.path.isfile(src_dir):
-            pass
-        else:
-            manifest_file = os.path.join(src_dir,'androidmanifest.xml')
-
+        if os.path.isdir(os.path.join(src_dir, decompile_dir)):
+            manifest_file = os.path.join(src_dir, decompile_dir, 'AndroidManifest.xml')
             #initialize the report values
             report = {'path':manifest_file,
                       'exported_flag': False,
@@ -58,7 +58,7 @@ def parse_all_manifest(src_dir):
             if target_sdk_is_vulnerable(manifest_file):
                 report['sdk_version_vuln'] = True
 
-        report_list.append(report)
+            report_list.append(report)
     return report_list
 
 def generate_report(report_list, dst_dir):
@@ -74,9 +74,10 @@ def generate_report(report_list, dst_dir):
         f.write(report['path'])
         f.write('\n\t Parsed results:')
         f.write('\n\t\t')
-        f.write('exported flag: '+report['exported_flag'])
+        f.write('exported flag: '+ str(report['exported_flag']))
         f.write('\n\t\t')
-        f.write('targetSdkVersion vuln: '+report['sdk_version_vuln'])
+        f.write('targetSdkVersion vuln: '+ str(report['sdk_version_vuln']))
+        f.write('\n\n')
     f.close()
 
 def main():

@@ -21,15 +21,16 @@ def decompile_all_apk(src_dir, dst_dir):
     """
     files_in_src_dir = os.listdir(src_dir)
     for apk in files_in_src_dir:
-        in_path = os.path.join(src_dir, apk)
-        out_path = os.path.join(dst_dir, apk)
+        if apk[-3:] == 'apk':
+            in_path = os.path.join(src_dir, apk)
+            out_path = os.path.join(dst_dir, apk)
 
-        apktool_decompile_cmd = [apktool, 'd', in_path, '-o' , out_path]
-        print apktool_decompile_cmd
-        try:
-            check_call(apktool_decompile_cmd)
-        except CalledProcessError as e:
-            print(e.returncode)
+            apktool_decompile_cmd = [apktool, 'd', in_path, '-o' , out_path]
+            print apktool_decompile_cmd
+            try:
+                check_call(apktool_decompile_cmd)
+            except CalledProcessError as e:
+                print(e.returncode)
 
 
 def main():
