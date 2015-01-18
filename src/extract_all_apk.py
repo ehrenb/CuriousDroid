@@ -2,6 +2,7 @@ from hashlib import md5
 import sys
 import adb
 import os
+from datetime import datetime
 from subprocess import CalledProcessError, check_output, call, check_call
 """
 Extract all APKs from a device 
@@ -39,9 +40,25 @@ def extract_all_apk(device_id, package_list, dst_dir):
         report['path_on_device'] = apk_path_on_device
         report['md5sum'] = md5(open(result_full_path, 'rb').read()).hexdigest()
         report_list.append(report)
-        
-    report_file_path = os.path.join(dst_dir, 'report.txt')
+    return report_list
+
+
+def parse_apk_from_path(path):
+    """
+    return last part of a path (after last '/')
+    """
+    apk_file = path[path.rfind('/')+1:]
+    return apk_file
+
+def generate_report(report_list, dst_dir):
+    """
+    generate a report of what was extracted
+    """
+    now = datetime.now()
+    report_file_path = os.path.join(dst_dir, 'extract_report_{0}.txt'.format(now.strftime('%Y%m%d%H%M%S')))
     f = open(report_file_path,'w')
+    f.write('Timestamp: {0}\n'.format(now.strftime('%Y/%m/%d %H:%M:%S')))
+
     for report in report_list:
         f.write(report['file_name'])
         f.write('\n\t Path on device: ')
@@ -50,13 +67,6 @@ def extract_all_apk(device_id, package_list, dst_dir):
         f.write(report['md5sum'])
         f.write('\n')
     f.close()
-
-def parse_apk_from_path(path):
-    """
-    return last part of a path (after last '/')
-    """
-    apk_file = path[path.rfind('/')+1:]
-    return apk_file
 
 def main():
     adb.start_server()#start adb server
@@ -81,7 +91,8 @@ def main():
 
     device_id = devices[0]#default to the first device found
     package_list = adb.list_all_packages(device_id)
-    extract_all_apk(device_id, package_list, dst_dir)
+    report_list = extract_all_apk(device_id, package_list, dst_dir)
+    generate_report(report_list, dst_dir)
 
 if __name__ == "__main__":
     main()
