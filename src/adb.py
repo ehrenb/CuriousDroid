@@ -56,9 +56,14 @@ def get_apk_path(device_id, package):
         print(e.returncode)
     return path
 
-def list_all_packages(device_id):
+def list_all_packages(device_id, system_packages=False):
     """call adb shell pm list packages and return the result in a list"""
     adb_list_packages_cmd = [adb, '-s', device_id, 'shell', 'pm', 'list', 'packages']
+
+    #append arg to avoid getting system packages
+    if not system_packages:
+        adb_list_packages_cmd.append('-3')
+
     result = None
     try:
         output = check_output(adb_list_packages_cmd).replace('package:','').replace('\r','')

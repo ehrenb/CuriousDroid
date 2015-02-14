@@ -4,14 +4,25 @@ import os
 import re
 import sys
 
-def export_flag_is_true(manifest_file):
+def activity_export_flag_is_true(manifest_file):
     """
     Open manifest_file and see if the android:exported flag is true
     Return true if flag is set to true
     Return false if flag is set to false
     """
     f = open(manifest_file,'r')
-    if 'android:exported="true"' in f.read():
+    if re.findall('<activity.*android:exported="true".*',f.read(), re.DOTALL):
+        return True
+    return False
+
+def provider_export_flag_is_true(manifest_file):
+    """
+    Open manifest_file and see if the android:exported flag is true
+    Return true if flag is set to true
+    Return false if flag is set to false
+    """
+    f = open(manifest_file,'r')
+    if re.findall('<provider.*android:exported="true".*',f.read(), re.DOTALL):
         return True
     return False
 
@@ -48,12 +59,16 @@ def parse_all_manifest(src_dir):
             manifest_file = os.path.join(src_dir, decompile_dir, 'AndroidManifest.xml')
             #initialize the report values
             report = {'path':manifest_file,
-                      'exported_flag': False,
+                      'activity_exported_flag': False,
+                      'content_provider_exported_flag:' False,
                       'sdk_version_vuln': False} 
 
-            if export_flag_is_true(manifest_file):
+            if activity_export_flag_is_true(manifest_file):
                 #record what was parsed, and the path of where it can be found
-                report['exported_flag'] = True
+                report['activity_exported_flag'] = True
+                
+            if provider_export_flag_is_true(manifest_file):
+                report['content_provider_exported_flag'] = True
 
             if target_sdk_is_vulnerable(manifest_file):
                 report['sdk_version_vuln'] = True
