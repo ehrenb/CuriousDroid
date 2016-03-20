@@ -117,7 +117,6 @@ def get_logcat(device):
         print(e.returncode)
     return output
 
-
 def start_server():
     """
     Calls 'adb start-server'

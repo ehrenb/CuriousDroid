@@ -5,7 +5,7 @@ import os
 from datetime import datetime
 from subprocess import CalledProcessError, check_output, call, check_call
 """
-Extract all APKs from a device 
+Extract all APKs from a device
 """
 
 """
@@ -15,10 +15,10 @@ dst_dir defaults to cwd if not set
 """
 
 
-def extract_all_apk(device_id, package_list, dst_dir):
+def extract_all_apk(device_id, package_list, dst_dir=None):
     """
     Extract all APK files associated with the package_list
-    Create a report 
+    Create a report
     """
     report_list = []
     for package in package_list:
@@ -42,6 +42,19 @@ def extract_all_apk(device_id, package_list, dst_dir):
         report_list.append(report)
     return report_list
 
+def extract_apk(device_id, package, dst_dir=None):
+    apk_path_on_device = adb.get_apk_path(device_id, package)
+    adb.pull_file(device_id, apk_path_on_device, dst_dir) #extract file to dst_dir
+    apk_file_name = parse_apk_from_path(apk_path_on_device) #parse file name
+    report = {}
+    result_full_path = None
+    #if destination was set, then get the full path (dst_dir+apk_file_name)
+    if dst_dir:
+        result_full_path = os.path.join(dst_dir, apk_file_name)
+    #if destination was not set, then get full path (cwd+apk_file_name)
+    else:
+        result_full_path = os.path.join(os.getcwd(), apk_file_name)
+    print "Extracted app: {0} --> {1}".format(package, result_full_path)
 
 def parse_apk_from_path(path):
     """

@@ -11,8 +11,20 @@ def activity_export_flag_is_true(manifest_file):
     Return false if flag is set to false
     """
     f = open(manifest_file,'r')
-    if re.findall('<activity.*android:exported="true".*',f.read(), re.DOTALL):
-        return True
+    manifest = f.read()
+    number_of_activities = manifest.count("<activity")#number of providers in the manifest
+
+    activities_parsed = 0
+    activity_start_index = 0
+    activity_end_index = 0
+    #while this provider isnt exported, check the next one
+    while activities_parsed < number_of_activities:
+        activity_start_index = manifest.find('<activity', activity_end_index) #find start of activity, starting with manifest[activity_end_index]
+        activity_end_index = manifest.find('/>', activity_start_index) #find end of activity, starting with manifest[activity_start_index]
+        single_activity = manifest[activity_start_index:activity_end_index]
+        if 'android:exported="true"' in single_activity:
+            return True
+        activities_parsed+=1
     return False
 
 def provider_export_flag_is_true(manifest_file):
@@ -22,8 +34,20 @@ def provider_export_flag_is_true(manifest_file):
     Return false if flag is set to false
     """
     f = open(manifest_file,'r')
-    if re.findall('<provider.*android:exported="true".*',f.read(), re.DOTALL):
-        return True
+    manifest = f.read()
+    number_of_providers = manifest.count("<provider")#number of providers in the manifest
+
+    providers_parsed = 0
+    provider_start_index = 0
+    provider_end_index = 0
+    #while this provider isnt exported, check the next one
+    while providers_parsed < number_of_providers:
+        provider_start_index = manifest.find('<provider', provider_end_index) #find start of provider, starting with manifest[provider_end_index]
+        provider_end_index = manifest.find('/>', provider_start_index) #find end of provider, starting with manifest[provider_start_index]
+        single_provider = manifest[provider_start_index:provider_end_index]
+        if 'android:exported="true"' in single_provider:
+            return True
+        providers_parsed+=1
     return False
 
 def target_sdk_is_vulnerable(manifest_file):
@@ -60,13 +84,13 @@ def parse_all_manifest(src_dir):
             #initialize the report values
             report = {'path':manifest_file,
                       'activity_exported_flag': False,
-                      'content_provider_exported_flag:' False,
+                      'content_provider_exported_flag': False,
                       'sdk_version_vuln': False} 
 
             if activity_export_flag_is_true(manifest_file):
                 #record what was parsed, and the path of where it can be found
                 report['activity_exported_flag'] = True
-                
+
             if provider_export_flag_is_true(manifest_file):
                 report['content_provider_exported_flag'] = True
 
@@ -89,7 +113,9 @@ def generate_report(report_list, dst_dir):
         f.write(report['path'])
         f.write('\n\t Parsed results:')
         f.write('\n\t\t')
-        f.write('exported flag: '+ str(report['exported_flag']))
+        f.write('activity exported flag: '+ str(report['activity_exported_flag']))
+        f.write('\n\t\t')
+        f.write('content provider exported flag: '+ str(report['content_provider_exported_flag']))
         f.write('\n\t\t')
         f.write('targetSdkVersion vuln: '+ str(report['sdk_version_vuln']))
         f.write('\n\n')
