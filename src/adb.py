@@ -29,7 +29,7 @@ def get_list_of_connected_devices():
         #   devices.append(device.replace('\t',''))
         # print devices
     except CalledProcessError as e:
-        print(e.returncode)
+        raise
     return result
 
 def pull_file(device_id, src_dir, dst_dir):
@@ -43,7 +43,7 @@ def pull_file(device_id, src_dir, dst_dir):
     try:
         check_call(adb_pull_cmd)
     except CalledProcessError as e:
-        print(e.returncode)
+        raise 
 
 def get_apk_path(device_id, package):
     """given a device id and list of package
@@ -53,7 +53,7 @@ def get_apk_path(device_id, package):
     try:
         path = check_output(adb_package_paths_cmd).replace('package:','').replace('\r','').replace('\n','')
     except CalledProcessError as e:
-        print(e.returncode)
+        raise
     return path
 
 def list_all_packages(device_id, system_packages=False):
@@ -70,43 +70,43 @@ def list_all_packages(device_id, system_packages=False):
         output = output.split('\n')
         result = list(filter(None,output))
     except CalledProcessError as e:
-        print(e.returncode)
+        raise
     return result
 
-def run_monkey(device_id, mky_parameters, mky_event_count):
-    """
-    Calls 'adb monkey' with mky_parameters as its parameters
-    """
-    adb_monkey_cmd = [adb,'-s',device_id,'shell','monkey']
+# def run_monkey(device_id, mky_parameters, mky_event_count):
+#     """
+#     Calls 'adb monkey' with mky_parameters as its parameters
+#     """
+#     adb_monkey_cmd = [adb,'-s',device_id,'shell','monkey']
 
-    option_syntax = []
-    for parameter in mky_parameters.items():
-        if parameter[1][1]:
-            option = parameter[1][0]
-            value = parameter[1][1]
-            option_syntax.append(option)
-            option_syntax.append(value)
+#     option_syntax = []
+#     for parameter in mky_parameters.items():
+#         if parameter[1][1]:
+#             option = parameter[1][0]
+#             value = parameter[1][1]
+#             option_syntax.append(option)
+#             option_syntax.append(value)
 
-    adb_monkey_cmd.extend(option_syntax)
-    adb_monkey_cmd.append(mky_event_count)
+#     adb_monkey_cmd.extend(option_syntax)
+#     adb_monkey_cmd.append(mky_event_count)
 
-    print adb_monkey_cmd
+#     print adb_monkey_cmd
 
-    output = None
-    try:
-        output = check_output(adb_monkey_cmd)
-    except CalledProcessError as e:
-        print(e.returncode)
+#     output = None
+#     try:
+#         output = check_output(adb_monkey_cmd)
+#     except CalledProcessError as e:
+#         print(e.returncode)
 
-    print output
-    return output
+#     print output
+#     return output
 
 def flush_logcat(device):
     adb_flush_logcat_cmd = [adb,'-s',device,'logcat','-c']
     try:
         check_call(adb_flush_logcat_cmd)
     except CalledProcessError as e:
-        print(e.returncode)
+        raise
 
 def get_logcat(device):
     adb_get_logcat_cmd = [adb,'-s',device,'logcat','-d']
@@ -114,7 +114,7 @@ def get_logcat(device):
     try:
         output = check_output(adb_get_logcat_cmd)
     except CalledProcessError as e:
-        print(e.returncode)
+        raise
     return output
 
 def start_server():
@@ -126,7 +126,7 @@ def start_server():
     try:
         check_call(adb_start_cmd)
     except CalledProcessError as e:
-        print (e.returncode)
+        raise
 
 def restart_server():
     """
@@ -134,7 +134,7 @@ def restart_server():
     followed by 'adb start-server'
     """
     stop_server()
-    start-server()
+    start_server()
 
 def stop_server():
     """
@@ -145,7 +145,7 @@ def stop_server():
     try:
         check_call(adb_stop_cmd)
     except CalledProcessError as e:
-        print (e.returncode)
+        raise
 
 def test():
     device = get_list_of_connected_devices()[0]

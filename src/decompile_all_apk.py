@@ -1,9 +1,11 @@
-import adb
-from settings import apktool_executable as apktool
 import os
-import sys
 import re
 from subprocess import CalledProcessError, check_call, check_output
+import sys
+import zipfile
+
+import adb
+from settings import apktool_executable as apktool
 """
 Run apktool d on all APKs in src_dir
 """
@@ -22,42 +24,32 @@ def decompile_all_apk(src_dir, dst_dir):
     """
     files_in_src_dir = os.listdir(src_dir)
     for apk in files_in_src_dir:
-        if apk[-3:] == 'apk':
-            in_path = os.path.join(src_dir, apk)
-            out_path = os.path.join(dst_dir, apk)
-
-            apktool_decompile_cmd = [apktool, 'd', in_path, '-o' , out_path]
-            print apktool_decompile_cmd
-            try:
-                check_call(apktool_decompile_cmd)
-            except CalledProcessError as e:
-                print(e.returncode)
-
-def decompile_apk(apk_src, dst_dir):
-    if apk_src[-3:] == 'apk':
+        in_path = os.path.join(src_dir, apk)
         out_path = os.path.join(dst_dir, apk)
-        apktool_decompile_cmd = [apktool, 'd', apk_src, '-o' , out_path]
+        decompile_apk(in_path, out_path)
+
+def decompile_apk(apk, dst_dir):
+    if os.path.splitext(apk) == '.apk':
+        out_path = os.path.join(dst_dir, os.path.basename(apk))
+        apktool_decompile_cmd = [apktool, 'd', apk, '-o' , out_path]
         print apktool_decompile_cmd
         try:
             check_call(apktool_decompile_cmd)
         except CalledProcessError as e:
-            print(e.returncode)
+            raise
 
 def get_apk_uris(apk):
-    if apk[-3:] == 'apk':
-        apk_unzip_cmd = ['unzip', apk, "-d", apk[:-4]] #unzip and put into dir "flag.apk" -> "flag/"
-        classes_dex_content = None
-        uris = None
+    if os.path.splitext(apk) == '.apk':
+        zip = zipfile.ZipFile(apk)
+        zip.extractall(os.path.basename(apk))
+        uris = []]
         try:
             check_call(apk_unzip_cmd)
-            strings_cmd = ['strings', os.path.join(apk[:-4], "classes.dex")]
+            strings_cmd = ['strings', os.path.join(os.path.basename(apk), "classes.dex")]
             output = check_output(strings_cmd)
-            print output
             uris = re.findall("content://.*", output)
-           # classes_dex = open(os.path.join(apk[:-3], 'classes.dex'))
-            #classes_dex_content = classes_dex.read()
         except CalledProcessError as e:
-            print(e.returncode)
+            raise
     return uris
 
 
