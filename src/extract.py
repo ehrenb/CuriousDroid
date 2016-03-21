@@ -15,31 +15,29 @@ dst_dir defaults to cwd if not set
 """
 
 
-def extract_all_apk(device_id, package_list, dst_dir=None):
+def extract_all_apk(device_id, package_list, dst_dir=''):
     """
-    Extract all APK files associated with the package_list
-    Create a report
+    Convenience func for calling extract_apk on package in package_list
     """
     report_list = []
     for package in package_list:
         report_dict = extract_apk(device_id, package, dst_dir=dst_dir)
-        #generate a basic report
         report_list.append(report_dict)
     return report_list
 
-def extract_apk(device_id, package, dst_dir=None):
+def extract_apk(device_id, package, dst_dir=''):
+    """
+    Extract apk with package name package to dst_dir
+    if dst_dir not specified, it is cwd
+    Return: dictionary with info about apk
+    """
     apk_path_on_device = adb.get_apk_path(device_id, package)
     adb.pull_file(device_id, apk_path_on_device, dst_dir) #extract file to dst_dir
     apk_file_name = parse_apk_from_path(apk_path_on_device) #parse file name
     report_dict = {}
     result_full_path = None
 
-    #if destination was set, then get the full path (dst_dir+apk_file_name)
-    if dst_dir:
-        result_full_path = os.path.join(dst_dir, apk_file_name)
-    #if destination was not set, then get full path (cwd+apk_file_name)
-    else:
-        result_full_path = os.path.join(os.getcwd(), apk_file_name)
+    result_full_path = os.path.join(dst_dir, apk_file_name)
 
     report_dict['file_name'] = apk_file_name
     report_dict['path_on_device'] = apk_path_on_device
